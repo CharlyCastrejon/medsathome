@@ -31,6 +31,7 @@ export default function MedicationForm({
   isEditing = false,
 }: MedicationFormProps) {
   const [formData, setFormData] = useState<CreateMedication>({
+    family_id: initialData?.family_id || "",
     name: initialData?.name || "",
     laboratory: initialData?.laboratory || "",
     administration_route: initialData?.administration_route || "",
@@ -91,17 +92,19 @@ export default function MedicationForm({
         return;
       }
 
-      const { data: family } = await getUserFamily();
-      if (!family) {
+      const { data: familyData } = await getUserFamily();
+      if (!familyData) {
         setError(t.medication.familyNotFound);
         setLoading(false);
         return;
       }
 
+      const currentFamily = Array.isArray(familyData) ? familyData[0] : familyData;
+
       const { error } = await supabase.from("medications").insert({
         ...formData,
         user_id: user.id,
-        family_id: family.id,
+        family_id: currentFamily.id,
       });
 
       if (error) {

@@ -1,11 +1,11 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { Language, translations, TranslationKeys } from "@/lib/i18n";
+import { Language, translations } from "@/lib/i18n";
 
 interface LanguageContextType {
   language: Language;
-  t: TranslationKeys;
+  t: typeof translations.es | typeof translations.en;
   toggleLanguage: () => void;
 }
 
