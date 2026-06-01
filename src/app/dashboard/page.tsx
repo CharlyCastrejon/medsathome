@@ -52,6 +52,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchMedications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchMedications = async () => {
@@ -63,12 +64,14 @@ export default function DashboardPage() {
       setLoading(false);
       return;
     }
-    setFamily(familyData);
+    
+    const currentFamily = Array.isArray(familyData) ? familyData[0] : familyData;
+    setFamily(currentFamily as Family);
 
     const { data, error } = await supabase
       .from("medications")
       .select("*")
-      .eq("family_id", familyData.id);
+      .eq("family_id", currentFamily.id);
 
     if (error) {
       setError(error.message);

@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/client";
-import { Profile } from "@/types/database";
 
 export async function createProfile(
   userId: string,
