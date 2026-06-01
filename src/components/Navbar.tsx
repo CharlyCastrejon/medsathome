@@ -71,7 +71,7 @@ export default function Navbar() {
               <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className="text-sm font-medium text-gray-700 hover:text-primary-600 hidden sm:block"
+                  className="text-sm font-medium text-gray-700 hover:text-primary-600"
                 >
                   {t.nav.hi}, {profile.first_name}
                 </button>
