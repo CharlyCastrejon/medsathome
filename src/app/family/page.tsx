@@ -100,7 +100,10 @@ export default function FamilyPage() {
       return;
     }
 
-    setFamily(data);
+    if (data) {
+      setFamily(data as Family);
+    }
+    
     setEditingName(false);
     setSuccess(t.family.familyCreated);
     setUpdatingName(false);
