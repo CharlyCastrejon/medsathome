@@ -11,12 +11,14 @@ Manage your home medications easily and safely.
 - ✅ Responsive mobile-first design
 - ✅ Row Level Security (RLS) to protect your data
 - ✅ Family sharing with invitation codes
+- ✅ Bilingual support (Spanish / English)
 
 ## Tech Stack
 
-- **Frontend:** Next.js 14 (App Router), React, TypeScript
+- **Frontend:** Next.js 15 (App Router), React 19, TypeScript
 - **Styling:** Tailwind CSS
-- **Backend:** Supabase (PostgreSQL + Auth)
+- **Backend:** Supabase (PostgreSQL + Auth + RLS)
+- **SSR:** @supabase/ssr for Next.js middleware integration
 
 ## Prerequisites
 
@@ -70,10 +72,13 @@ medsathome/
 │   │   ├── register/           # Register page
 │   │   ├── family/             # Family setup page
 │   │   └── dashboard/          # Main dashboard
-│   │       └── medications/    # Medications CRUD
+│   │       ├── medications/    # Medications CRUD
+│   │       └── profile/        # User profile & language
 │   ├── components/             # React components
+│   ├── contexts/               # React contexts (Language)
 │   ├── lib/                    # Utilities and configuration
-│   │   └── supabase/           # Supabase clients
+│   │   ├── supabase/           # Supabase clients
+│   │   └── i18n.ts             # Translations (ES/EN)
 │   ├── types/                  # TypeScript types
 │   └── middleware.ts           # Route protection
 ├── supabase-schema.sql         # SQL script for Supabase
@@ -88,6 +93,12 @@ medsathome/
 - Persistent sessions
 - Automatic route protection
 
+### Profile
+- View and edit first name / last name
+- View email address
+- View family code and copy it
+- Switch language (Spanish / English)
+
 ### Family Management
 - Create a new family with automatic code generation
 - Join an existing family using an invitation code
@@ -95,11 +106,11 @@ medsathome/
 - Code format: MEDS-XXXXXX
 
 ### Medication Management
-- Add new medications
+- Add new medications with administration route and expiration date
 - Edit existing medications
 - Delete with confirmation
 - Search by name
-- Visual expiration indicator (red border)
+- Visual expiration indicator (expired / expiring soon / ok)
 
 ### Security
 - Row Level Security (RLS) enabled
