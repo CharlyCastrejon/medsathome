@@ -26,7 +26,8 @@ export default function FamilyPage() {
     const checkFamily = async () => {
       const { data } = await getUserFamily();
       if (data) {
-        setFamily(data);
+        const currentFamily = Array.isArray(data) ? data[0] : data;
+        setFamily(currentFamily as Family);
       }
       setLoading(false);
     };
