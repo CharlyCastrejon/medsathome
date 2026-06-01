@@ -32,7 +32,8 @@ export default function ProfilePage() {
       setProfile(profileData);
 
       const { data: familyData } = await getUserFamily();
-      setFamily(familyData);
+      const currentFamily = Array.isArray(familyData) ? familyData[0] : familyData;
+      setFamily((currentFamily as Family) || null);
 
       const {
         data: { user },
