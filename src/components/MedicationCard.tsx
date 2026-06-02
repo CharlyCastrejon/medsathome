@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Medication } from "@/types/database";
 import Modal from "./Modal";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/contexts/ToastContext";
 
 type ExpirationStatus = "expired" | "danger" | "warning" | "safe";
 
@@ -62,6 +63,7 @@ export default function MedicationCard({
   const [deleting, setDeleting] = useState(false);
   const supabase = createClient();
   const { t, language } = useLanguage();
+  const { showToast } = useToast();
   const config = statusConfig[expirationStatus];
   const locale = language === "es" ? "es-MX" : "en-US";
 
@@ -81,6 +83,7 @@ export default function MedicationCard({
 
     onDelete(medication.id);
     setShowModal(false);
+    showToast(t.toast.medicationDeleted);
   };
 
   if (viewMode === "list") {

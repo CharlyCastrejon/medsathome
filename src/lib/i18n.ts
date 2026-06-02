@@ -48,6 +48,11 @@ export const translations = {
       delete: "Eliminar",
       grid: "Vista cuadrícula",
       list: "Vista lista",
+      filterAll: "Todos",
+      filterExpired: "Caducados",
+      filterThisMonth: "Este mes",
+      filterIn2Months: "2 meses",
+      filterOk: "OK",
     },
     medication: {
       nameLabel: "Nombre del medicamento *",
@@ -58,6 +63,8 @@ export const translations = {
       selectRoute: "Seleccionar...",
       quantityLabel: "Cantidad",
       quantityPlaceholder: "Ej: 20 tabletas",
+      quantityHint: "Ej: 20 tabletas, 1 frasco, 100ml",
+      routeHint: "Selecciona la forma de administración del medicamento",
       expirationDate: "Fecha de caducidad *",
       month: "Mes",
       year: "Año",
@@ -150,6 +157,11 @@ export const translations = {
       joinFamily: "Unirse a una familia",
       language: "Idioma",
     },
+    toast: {
+      medicationCreated: "Medicamento creado",
+      medicationUpdated: "Medicamento actualizado",
+      medicationDeleted: "Medicamento eliminado",
+    },
     deleteModal: {
       title: "Eliminar medicamento",
       message: '¿Estás seguro de que deseas eliminar "{{name}}"? Esta acción no se puede deshacer.',
@@ -159,6 +171,9 @@ export const translations = {
     },
     search: {
       placeholder: "Buscar por nombre...",
+      clear: "Limpiar",
+      results: "{{count}} resultados",
+      resultsOne: "1 resultado",
     },
   },
   en: {
@@ -208,6 +223,11 @@ export const translations = {
       delete: "Delete",
       grid: "Grid view",
       list: "List view",
+      filterAll: "All",
+      filterExpired: "Expired",
+      filterThisMonth: "This month",
+      filterIn2Months: "2 months",
+      filterOk: "OK",
     },
     medication: {
       nameLabel: "Medication name *",
@@ -218,6 +238,8 @@ export const translations = {
       selectRoute: "Select...",
       quantityLabel: "Quantity",
       quantityPlaceholder: "e.g. 20 tablets",
+      quantityHint: "e.g. 20 tablets, 1 bottle, 100ml",
+      routeHint: "Select how the medication is administered",
       expirationDate: "Expiration date *",
       month: "Month",
       year: "Year",
@@ -310,6 +332,11 @@ export const translations = {
       joinFamily: "Join a family",
       language: "Language",
     },
+    toast: {
+      medicationCreated: "Medication created",
+      medicationUpdated: "Medication updated",
+      medicationDeleted: "Medication deleted",
+    },
     deleteModal: {
       title: "Delete medication",
       message: 'Are you sure you want to delete "{{name}}"? This action cannot be undone.',
@@ -319,6 +346,9 @@ export const translations = {
     },
     search: {
       placeholder: "Search by name...",
+      clear: "Clear",
+      results: "{{count}} results",
+      resultsOne: "1 result",
     },
   },
 } as const;

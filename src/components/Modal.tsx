@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ModalProps {
@@ -23,11 +24,49 @@ export default function Modal({
 }: ModalProps) {
   const { t } = useLanguage();
   const displayConfirmText = confirmText || t.deleteModal.confirm;
+  const confirmRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !loading) {
+        onClose();
+      }
+      if (e.key === "Tab") {
+        const focusable = confirmRef.current;
+        if (focusable) {
+          focusable.focus();
+          e.preventDefault();
+        }
+      }
+    },
+    [onClose, loading]
+  );
+
+  useEffect(() => {
+    if (isOpen) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
+      document.body.style.overflow = "hidden";
+      setTimeout(() => confirmRef.current?.focus(), 0);
+      document.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", handleKeyDown);
+      previousFocusRef.current?.focus();
+    };
+  }, [isOpen, handleKeyDown]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
       <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
         <div
           className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
@@ -53,7 +92,10 @@ export default function Modal({
                 </svg>
               </div>
               <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                <h3 className="text-lg font-semibold leading-6 text-gray-900">
+                <h3
+                  id="modal-title"
+                  className="text-lg font-semibold leading-6 text-gray-900"
+                >
                   {title}
                 </h3>
                 <div className="mt-2">
@@ -65,6 +107,7 @@ export default function Modal({
           <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3">
             <button
               type="button"
+              ref={confirmRef}
               onClick={onConfirm}
               disabled={loading}
               className="inline-flex w-full justify-center rounded-lg bg-danger-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-danger-500 sm:ml-3 sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"

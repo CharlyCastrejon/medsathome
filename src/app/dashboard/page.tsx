@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 type ExpirationStatus = "expired" | "danger" | "warning" | "safe";
 type ViewMode = "grid" | "list";
+type FilterStatus = "all" | ExpirationStatus;
 
 function getExpirationStatus(expirationDate: string): ExpirationStatus {
   const today = new Date();
@@ -29,10 +30,18 @@ function getExpirationStatus(expirationDate: string): ExpirationStatus {
   return "safe";
 }
 
+const statusOrder: Record<ExpirationStatus, number> = {
+  expired: 0,
+  danger: 1,
+  warning: 2,
+  safe: 3,
+};
+
 function sortMedications(meds: Medication[]): Medication[] {
   return [...meds].sort((a, b) => {
-    const nameComparison = a.name.localeCompare(b.name);
-    if (nameComparison !== 0) return nameComparison;
+    const statusA = statusOrder[getExpirationStatus(a.expiration_date)];
+    const statusB = statusOrder[getExpirationStatus(b.expiration_date)];
+    if (statusA !== statusB) return statusA - statusB;
     return (
       new Date(a.expiration_date).getTime() -
       new Date(b.expiration_date).getTime()
@@ -47,6 +56,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [activeFilter, setActiveFilter] = useState<FilterStatus>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const supabase = createClient();
   const { t } = useLanguage();
 
@@ -85,23 +96,41 @@ export default function DashboardPage() {
     setLoading(false);
   };
 
+  const applyFilters = (query: string, filter: FilterStatus) => {
+    let result = medications;
+
+    if (query) {
+      result = result.filter((med) =>
+        med.name.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    if (filter !== "all") {
+      result = result.filter((med) => getExpirationStatus(med.expiration_date) === filter);
+    }
+
+    setFilteredMedications(sortMedications(result));
+  };
+
   const handleSearch = (query: string) => {
-    const filtered = medications.filter((med) =>
-      med.name.toLowerCase().includes(query.toLowerCase())
-    );
-    setFilteredMedications(sortMedications(filtered));
+    setSearchQuery(query);
+    applyFilters(query, activeFilter);
+  };
+
+  const handleFilter = (filter: FilterStatus) => {
+    setActiveFilter(filter);
+    applyFilters(searchQuery, filter);
   };
 
   const handleDelete = (id: string) => {
-    setMedications((prev) => sortMedications(prev.filter((med) => med.id !== id)));
-    setFilteredMedications((prev) =>
-      sortMedications(prev.filter((med) => med.id !== id))
-    );
+    const next = medications.filter((med) => med.id !== id);
+    setMedications(next);
+    applyFilters(searchQuery, activeFilter);
   };
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6" aria-busy="true" aria-live="polite">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h1 className="text-2xl font-bold text-gray-900">{t.dashboard.medications}</h1>
           <div className="h-10 w-48 bg-gray-200 rounded-lg animate-pulse"></div>
@@ -119,7 +148,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20" aria-live="polite">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
@@ -132,7 +161,7 @@ export default function DashboardPage() {
               : t.dashboard.medicationsPlural}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-end gap-3">
           <div className="flex items-center bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode("grid")}
@@ -142,6 +171,7 @@ export default function DashboardPage() {
                   : "text-gray-500 hover:text-gray-700"
               }`}
               title={t.dashboard.grid}
+              aria-label={t.dashboard.grid}
             >
               <svg
                 className="w-5 h-5"
@@ -165,6 +195,7 @@ export default function DashboardPage() {
                   : "text-gray-500 hover:text-gray-700"
               }`}
               title={t.dashboard.list}
+              aria-label={t.dashboard.list}
             >
               <svg
                 className="w-5 h-5"
@@ -183,7 +214,7 @@ export default function DashboardPage() {
           </div>
           <Link
             href="/dashboard/medications/new"
-            className="inline-flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors"
+            className="hidden sm:inline-flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors"
           >
             <svg
               className="w-5 h-5 mr-2"
@@ -203,7 +234,31 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <SearchBar onSearch={handleSearch} />
+      <SearchBar onSearch={handleSearch} resultCount={filteredMedications.length} />
+
+      <div className="flex flex-wrap gap-2">
+        {(
+          [
+            ["all", t.dashboard.filterAll],
+            ["expired", t.dashboard.filterExpired],
+            ["danger", t.dashboard.filterThisMonth],
+            ["warning", t.dashboard.filterIn2Months],
+            ["safe", t.dashboard.filterOk],
+          ] as const
+        ).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => handleFilter(key)}
+            className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${
+              activeFilter === key
+                ? "bg-primary-600 text-white"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
       {error && (
         <div className="bg-danger-50 text-danger-700 p-4 rounded-lg">
@@ -279,6 +334,16 @@ export default function DashboardPage() {
           ))}
         </div>
       )}
+
+      <Link
+        href="/dashboard/medications/new"
+        className="fixed bottom-6 right-6 z-40 inline-flex items-center justify-center w-14 h-14 bg-primary-600 text-white rounded-full shadow-lg hover:bg-primary-700 transition-all hover:scale-105 sm:hidden"
+        aria-label={t.dashboard.addMedication}
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+      </Link>
     </div>
   );
 }

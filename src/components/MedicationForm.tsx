@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { getUserFamily } from "@/lib/family";
 import { CreateMedication, Medication } from "@/types/database";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/contexts/ToastContext";
 
 interface MedicationFormProps {
   initialData?: Medication;
@@ -44,6 +45,7 @@ export default function MedicationForm({
   const router = useRouter();
   const supabase = createClient();
   const { t } = useLanguage();
+  const { showToast } = useToast();
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -114,6 +116,7 @@ export default function MedicationForm({
       }
     }
 
+    showToast(isEditing ? t.toast.medicationUpdated : t.toast.medicationCreated);
     router.push("/dashboard");
     router.refresh();
   };
@@ -125,7 +128,8 @@ export default function MedicationForm({
           htmlFor="name"
           className="block text-sm font-medium text-gray-700 mb-2"
         >
-          {t.medication.nameLabel}
+          {t.medication.nameLabel.split("*")[0]}
+          <span className="text-danger-500">*</span>
         </label>
         <input
           type="text"
@@ -179,6 +183,7 @@ export default function MedicationForm({
               </option>
             ))}
           </select>
+          <p className="mt-1 text-xs text-gray-400">{t.medication.routeHint}</p>
         </div>
 
         <div>
@@ -197,12 +202,14 @@ export default function MedicationForm({
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
             placeholder={t.medication.quantityPlaceholder}
           />
+          <p className="mt-1 text-xs text-gray-400">{t.medication.quantityHint}</p>
         </div>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          {t.medication.expirationDate}
+          {t.medication.expirationDate.split("*")[0]}
+          <span className="text-danger-500">*</span>
         </label>
         <div className="grid grid-cols-2 gap-3">
           <select
